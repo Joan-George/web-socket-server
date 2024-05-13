@@ -1,9 +1,11 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
-import dotenv from "dotenv";
+import "dotenv/config";
 import express from "express";
 import { query } from "./db.js";
+import { signJWT } from "./jwt.js";
+import { authentication } from "./middleware/authMiddleware.js";
 
-dotenv.config();
 //This creates express application
 const app = express();
 // This creates the http server to serve the express application
@@ -17,6 +19,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 
 // This below line helps us to create the webSocketServer
 // const wss = new WebSocketServer({ server });
@@ -36,7 +39,8 @@ app.get("/", async (req, res) => {
 	res.send("This is entry point");
 });
 
-app.get("/getData", async (req, res) => {
+app.get("/getData", authentication, async (req, res) => {
+	console.log({ req: req.userData });
 	try {
 		const result = await query("SELECT * FROM public.users");
 		res.setHeader("hello", "test");
@@ -52,16 +56,16 @@ app.post("/createUser", async (req, res) => {});
 app.post("/login", async (req, res) => {
 	console.log({ body: req.body });
 
-	const result = await query("SELECT * FROM public.users where email = $1 and password = $2", [req.body.email, req.body.password]);
+	const result = await query("SELECT id,username,email FROM public.users where email = $1 and password = $2", [
+		req.body.email,
+		req.body.password,
+	]);
 	if (result.rows.length === 0) {
-		res.status(401).json({ staus: "Unauthorized" });
-		return;
+		return res.status(401).json({ staus: "Unauthorized" });
 	}
-	const userData = { name: "John Doe" }; // Example user data
-	const serializedData = JSON.stringify(userData);
-	const encodedData = Buffer.from(serializedData).toString("base64");
+	const token = signJWT({ data: result.rows[0] });
 
-	res.setHeader("Set-Cookie", `userData=${encodedData}; Path=/; Secure; HttpOnly`);
+	res.setHeader("Set-Cookie", `token=${token}; Path=/; Secure; HttpOnly`);
 	res.status(200).json({ status: "Success" });
 });
 
