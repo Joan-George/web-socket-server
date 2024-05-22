@@ -5,6 +5,7 @@ import express from "express";
 import { query } from "./db.js";
 import { signJWT } from "./jwt.js";
 import { authentication } from "./middleware/authMiddleware.js";
+import { chatRoute } from "./routes/chat_rooms.js";
 
 //This creates express application
 const app = express();
@@ -34,6 +35,8 @@ app.use(cookieParser());
 // 		});
 // 	});
 // });
+
+app.use("/chatroom", chatRoute);
 
 app.get("/", async (req, res) => {
 	res.send("This is entry point");
