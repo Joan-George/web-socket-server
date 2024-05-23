@@ -36,7 +36,7 @@ app.use(cookieParser());
 // 	});
 // });
 
-app.use("/chatroom", chatRoute);
+app.use("/chatroom", authentication, chatRoute);
 
 app.get("/", async (req, res) => {
 	res.send("This is entry point");
@@ -53,8 +53,6 @@ app.get("/getData", authentication, async (req, res) => {
 		res.status(500).send("Internel Server Error");
 	}
 });
-
-app.post("/createUser", async (req, res) => {});
 
 app.post("/login", async (req, res) => {
 	console.log({ body: req.body });
