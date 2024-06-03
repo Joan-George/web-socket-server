@@ -1,11 +1,12 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import "dotenv/config";
-import express from "express";
-import { query } from "./db.js";
-import { signJWT } from "./jwt.js";
-import { authentication } from "./middleware/authMiddleware.js";
-import { chatRoute } from "./routes/chat_rooms.js";
+import express, { Request, Response } from "express";
+import { query } from "./db";
+import { signJWT } from "./jwt";
+import { authentication } from "./middleware/authMiddleware";
+import { chatRoute } from "./routes/chat_rooms";
+import { messageRoute } from "./routes/message";
 
 //This creates express application
 const app = express();
@@ -37,15 +38,16 @@ app.use(cookieParser());
 // });
 
 app.use("/chatroom", authentication, chatRoute);
+app.use("/message", authentication, messageRoute);
 
-app.get("/", async (req, res) => {
+app.get("/", async (req: Request, res: Response) => {
 	res.send("This is entry point");
 });
 
-app.get("/getData", authentication, async (req, res) => {
-	console.log({ req: req.userData });
+app.get("/getData", authentication, async (req: Request, res: Response) => {
+	console.log({ req: req });
 	try {
-		const result = await query("SELECT * FROM public.users");
+		const result = await query("SELECT * FROM public.users", []);
 		res.setHeader("hello", "test");
 		res.json(result.rows);
 	} catch (err) {
@@ -54,7 +56,7 @@ app.get("/getData", authentication, async (req, res) => {
 	}
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", async (req: Request, res: Response) => {
 	console.log({ body: req.body });
 
 	const result = await query("SELECT id,username,email FROM public.users where email = $1 and password = $2", [

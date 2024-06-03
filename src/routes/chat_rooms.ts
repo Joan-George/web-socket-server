@@ -1,5 +1,5 @@
 import express from "express";
-import { create, get, getAll, remove, update } from "../controllers/chat_rooms.js";
+import { create, get, getAll, remove, update } from "../controllers/chat_rooms";
 
 const chatRoute = express.Router();
 
