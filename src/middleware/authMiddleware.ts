@@ -10,6 +10,6 @@ export const authentication = (req: Request, res: Response, next: NextFunction) 
 		return res.status(401).json({ message: "Invalid token" });
 	}
 
-	req.userData = decoded;
+	(req as any).userData = decoded;
 	next();
 };

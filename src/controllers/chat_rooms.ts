@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import { query } from "../db";
 
 const getAll = async (req: Request, res: Response) => {
@@ -32,7 +33,7 @@ const update = (req: Request, res: Response) => {
 	res.json({ update: "chat room updated" });
 };
 
-const remove = (req: Request, res: Response) => {
+const remove = async (req: Request, res: Response) => {
 	res.json({ delete: "chat room deleted" });
 };
 
